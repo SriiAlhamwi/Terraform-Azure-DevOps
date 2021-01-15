@@ -5,8 +5,8 @@ provider "azurerm" {
 }
 
 # Create Resource Group
-resource "azurerm_resource_group" "CloudGovRG" {
-    name     = "CloudGovRG"
+resource "azurerm_resource_group" "specialisatieproject" {
+    name     = "specialisatieproject"
     location = "West Europe"
     tags = {
         environment = "Terraform"
@@ -28,11 +28,11 @@ resource "null_resource" "next" {
 }
 
 # Create virtual network
-resource "azurerm_virtual_network" "CloudGovVnet" {
-    name                = "CloudGovVnet"
+resource "azurerm_virtual_network" "CloudVnet" {
+    name                = "CloudVnet"
     address_space       = ["10.0.0.0/16"]
     location            = "West Europe"
-    resource_group_name = "CloudGovRG"
+    resource_group_name = "specialisatieproject"
 
     tags = {
         environment = "Terraform"
@@ -40,25 +40,25 @@ resource "azurerm_virtual_network" "CloudGovVnet" {
 }
 
 # Create subnet
-resource "azurerm_subnet" "CloudGovPubSub" {
-    name                 = "CloudGovPubSub"
-    resource_group_name = "CloudGovRG"
-    virtual_network_name = azurerm_virtual_network.CloudGovVnet.name
+resource "azurerm_subnet" "CloudPubSub" {
+    name                 = "CloudPubSub"
+    resource_group_name = "specialisatieproject"
+    virtual_network_name = azurerm_virtual_network.CloudVnet.name
     address_prefix       = "10.0.1.0/24"
 }
-resource "azurerm_subnet" "CloudGovPrivSub" {
-    name                 = "CloudGovPrivSub"
-    resource_group_name = "CloudGovRG"
-    virtual_network_name = azurerm_virtual_network.CloudGovVnet.name
+resource "azurerm_subnet" "CloudPrivSub" {
+    name                 = "CloudPrivSub"
+    resource_group_name = "specialisatieproject"
+    virtual_network_name = azurerm_virtual_network.CloudVnet.name
     address_prefix       = "10.0.2.0/24"
 }
 
 #Create Network Security Group
 
-resource "azurerm_network_security_group" "CloudGovNSG" {
-  name                = "CloudGovNSG"
+resource "azurerm_network_security_group" "CloudNSG" {
+  name                = "CloudNSG"
   location            = "West Europe"
-  resource_group_name = "CloudGovRG"
+  resource_group_name = "specialisatieproject"
 }
 
 #  Allow port 80
@@ -72,8 +72,8 @@ resource "azurerm_network_security_rule" "Web80" {
   destination_port_range      = "80"
   source_address_prefix       = "*"
   destination_address_prefix  = "*"
-  resource_group_name         = "CloudGovRG"
-  network_security_group_name = azurerm_network_security_group.CloudGovNSG.name
+  resource_group_name         = "specialisatieproject"
+  network_security_group_name = azurerm_network_security_group.CloudNSG.name
 }
 
 #  Allow ICMP 
@@ -87,8 +87,8 @@ resource "azurerm_network_security_rule" "Ping" {
   destination_port_range      = "*"
   source_address_prefix       = "*"
   destination_address_prefix  = "*"
-  resource_group_name         = "CloudGovRG"
-  network_security_group_name = azurerm_network_security_group.CloudGovNSG.name
+  resource_group_name         = "specialisatieproject"
+  network_security_group_name = azurerm_network_security_group.CloudNSG.name
 }
 
 #  Allow port SSH
@@ -102,15 +102,15 @@ resource "azurerm_network_security_rule" "Ping" {
   destination_port_range      = "22"
   source_address_prefix       = "*"
   destination_address_prefix  = "*"
-  resource_group_name         = "CloudGovRG"
-  network_security_group_name = azurerm_network_security_group.CloudGovNSG.name
+  resource_group_name         = "specialisatieproject"
+  network_security_group_name = azurerm_network_security_group.CloudNSG.name
 }
 
 #Deploy Public IP
 resource "azurerm_public_ip" "pubip" {
   name                = "pubip"
   location            = "West Europe"
-  resource_group_name = "CloudGovRG"
+  resource_group_name = "specialisatieproject"
   allocation_method   = "Dynamic"
   sku                 = "Basic"
 }
@@ -119,11 +119,11 @@ resource "azurerm_public_ip" "pubip" {
 resource "azurerm_network_interface" "NIC1" {
   name                = "NIC1"  
   location            = "West Europe"
-  resource_group_name = "CloudGovRG"
+  resource_group_name = "specialisatieproject"
 
     ip_configuration {
     name                          = "ipconfig1"
-    subnet_id                     = azurerm_subnet.CloudGovPubSub.id 
+    subnet_id                     = azurerm_subnet.CloudPubSub.id 
     private_ip_address_allocation  = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.pubip.id
   }
@@ -131,8 +131,8 @@ resource "azurerm_network_interface" "NIC1" {
 
 #Create Boot Diagnostic Account
 resource "azurerm_storage_account" "sa" {
-  name                     = "diagaccreinsrii1337" 
-  resource_group_name      = "CloudGovRG"
+  name                     = "diagacsrii6969" 
+  resource_group_name      = "specialisatieproject"
   location                 = "West Europe"
    account_tier            = "Standard"
    account_replication_type = "LRS"
@@ -144,10 +144,10 @@ resource "azurerm_storage_account" "sa" {
   }
 
 #Create Virtual Machine
-resource "azurerm_virtual_machine" "CloudGovVM" {
-  name                  = "CloudGovVM"  
+resource "azurerm_virtual_machine" "CloudVM" {
+  name                  = "CloudVM"  
   location              = "West Europe"
-  resource_group_name   = "CloudGovRG"
+  resource_group_name   = "specialisatieproject"
   network_interface_ids = [azurerm_network_interface.NIC1.id]
   vm_size               = "Standard_B1s"
   delete_os_disk_on_termination = true
@@ -169,7 +169,7 @@ resource "azurerm_virtual_machine" "CloudGovVM" {
   }
 
   os_profile {
-    computer_name  = "RienkVM"
+    computer_name  = "SriiVM"
     admin_username = "vmadmin"
     admin_password = "Password12345!"
   }
@@ -190,28 +190,3 @@ boot_diagnostics {
     }
 }
 
-# Create Appplan
-resource "azurerm_app_service_plan" "svcplan" {
-  name                = "CloudGovSvcPlan"
-  location            = "West Europe"
-  resource_group_name = "CloudGovRG"
-
-  sku {
-    tier = "Standard"
-    size = "S1"
-  }
-}
-
-#Create Webapp
-resource "azurerm_app_service" "appsvc" {
-  name                = "CloudGovWebApp"
-  location            = "West Europe"
-  resource_group_name = "CloudGovRG"
-  app_service_plan_id = azurerm_app_service_plan.svcplan.id
-
-
-  site_config {
-    dotnet_framework_version = "v4.0"
-    scm_type                 = "LocalGit"
-  }
-}
